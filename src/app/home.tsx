@@ -189,7 +189,7 @@ export default function HomeScreen() {
                 style={[styles.goButton, { backgroundColor: activeColor }, !link && styles.goButtonDisabled]}
                 activeOpacity={0.85}
                 disabled={!link}
-                onPress={() => router.push({ pathname: '/analyzing', params: { url: link } })}
+                onPress={() => router.push({ pathname: '/analyzing', params: { url: link, mode: mode } })}
               >
                 <ArrowIcon />
               </TouchableOpacity>

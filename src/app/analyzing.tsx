@@ -229,7 +229,7 @@ export default function AnalyzingScreen() {
   const glowOpacity = useSharedValue(0.7);
   const { getToken, userId } = useAuth();
 
-  const { url } = useLocalSearchParams<{ url: string }>();
+  const { url, mode } = useLocalSearchParams<{ url: string; mode?: string }>();
   const [errorMsg, setErrorMsg] = React.useState('');
 
   useEffect(() => {
@@ -270,6 +270,7 @@ export default function AnalyzingScreen() {
             duration: durationMs / 1000,
             sourceUrl: url,
             userId,
+            mode: mode || 'ad',
           })
         });
 

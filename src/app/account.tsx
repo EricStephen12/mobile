@@ -15,6 +15,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import Svg, { Path } from 'react-native-svg';
+import RevenueCatUI from 'react-native-purchases-ui';
 import { useTheme } from '../theme/ThemeContext';
 
 const BRAND_GREEN = '#bdf522';
@@ -147,6 +148,19 @@ export default function AccountScreen() {
                   editable={false}
                 />
               </View>
+
+              <TouchableOpacity 
+                style={[styles.input, { justifyContent: 'center', marginTop: 12, backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}
+                onPress={() => {
+                  try {
+                    RevenueCatUI.presentCustomerCenter();
+                  } catch (e) {
+                    console.error("Failed to open Customer Center", e);
+                  }
+                }}
+              >
+                <Text style={{ color: colors.text, fontFamily: sansFont, fontWeight: '600', textAlign: 'center' }}>Manage Subscription</Text>
+              </TouchableOpacity>
             </View>
 
           </ScrollView>

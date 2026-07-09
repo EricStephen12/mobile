@@ -58,21 +58,21 @@ const GradientOverlay = ({ height = 150 }: { height?: number }) => {
 const ONBOARDING_SLIDES = [
   {
     id: '1',
-    image: require('@/assets/images/welcome_hero.png'),
+    image: require('@/assets/images/welcome_hero.jpg'),
     titlePrefix: 'EVERY VIDEO\nHAS A ',
     titleHighlight: 'SECRET.',
     subtitle: 'EIXORA decodes it.',
   },
   {
     id: '2',
-    image: require('@/assets/images/welcome_hero_2.png'),
+    image: require('@/assets/images/welcome_hero_2.jpg'),
     titlePrefix: 'YOUR AI\nCREATIVE\n',
     titleHighlight: 'DIRECTOR.',
     subtitle: 'Always on.\nAlways watching.',
   },
   {
     id: '3',
-    image: require('@/assets/images/welcome_hero_3.png'),
+    image: require('@/assets/images/welcome_hero_3.jpg'),
     titlePrefix: 'SEE WHAT\nOTHERS ',
     titleHighlight: 'MISS.',
     subtitle: 'Frame by frame.\nInsight by insight.',

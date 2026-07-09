@@ -1,0 +1,30 @@
+{
+  "cli": {
+    "version": ">= 12.5.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://server-production-a4e1.up.railway.app",
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_live_Y2xlcmsuZWl4b3JhLnN0b3JlJA",
+        "EXPO_PUBLIC_REVENUECAT_IOS_KEY": "appl_mock_key",
+        "EXPO_PUBLIC_REVENUECAT_ANDROID_KEY": "goog_mock_key"
+      }
+    },
+    "production": {
+      "autoIncrement": true
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

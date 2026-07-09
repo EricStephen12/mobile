@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "Eixora",
+    "slug": "eixora",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/new_premium_icon.png",
     "scheme": "mobile",
     "userInterfaceStyle": "automatic",
     "ios": {
@@ -14,13 +14,13 @@
       "package": "com.eixora.mobile",
       "adaptiveIcon": {
         "backgroundColor": "#050505",
-        "foregroundImage": "./assets/images/icon.png"
+        "foregroundImage": "./assets/images/new_premium_icon.png"
       },
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/icon.png"
+      "favicon": "./assets/images/new_premium_icon.png"
     },
     "plugins": [
       "expo-router",
@@ -28,10 +28,10 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#050505",
-          "image": "./assets/images/icon.png",
+          "image": "./assets/images/new_premium_icon.png",
           "imageWidth": 200,
           "android": {
-            "image": "./assets/images/icon.png",
+            "image": "./assets/images/new_premium_icon.png",
             "imageWidth": 200
           }
         }
@@ -44,11 +44,25 @@
           ]
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "newArchEnabled": false
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6adc592f-f358-4fa4-b66e-c38a8e196927"
+      }
     }
   }
 }
