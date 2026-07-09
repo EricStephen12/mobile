@@ -89,28 +89,60 @@ export default function HistoryScreen() {
           <Text style={{ color: colors.textSubtle, textAlign: 'center', marginTop: 40 }}>No history found. Run your first scan!</Text>
         ) : (
           <View style={styles.historyList}>
-            {history.map((item) => (
-              <TouchableOpacity 
-                key={item.id} 
-                style={[styles.historyCard, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}
-                activeOpacity={0.7}
-                onPress={() => router.push(`/chat?sessionId=${item.id}`)}
-              >
-                <View style={styles.historyCardLeft}>
-                  <View style={styles.historyInfo}>
-                    <Text style={[styles.historyTitle, { color: colors.text }]} numberOfLines={1}>
-                      {item.title || 'Analysis Session'}
-                    </Text>
-                    <Text style={[styles.historyDate, { color: colors.textSubtle }]}>
-                      {new Date(item.updatedAt || item.created_at).toLocaleDateString()}
-                    </Text>
+            {history.map((item) => {
+              const mode = item.dna?.mode || item.mode || 'ad';
+              const isContent = mode === 'content';
+              const badgeBg = isContent ? colors.surfaceBorder : colors.badgeBg;
+              const badgeText = isContent ? colors.text : colors.primary;
+              const title = item.title || 'Analysis Session';
+              
+              // Get thumbnail
+              let thumb = null;
+              if (item.dna?.frames?.[0]) {
+                thumb = item.dna.frames[0];
+              } else if (item.thumbnail) {
+                thumb = item.thumbnail;
+              }
+
+              // Get hook power
+              const hookPower = item.dna?.metrics?.hook_power || '-';
+
+              return (
+                <TouchableOpacity 
+                  key={item.id} 
+                  style={[styles.historyCard, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}
+                  activeOpacity={0.7}
+                  onPress={() => router.push(`/chat?sessionId=${item.id}`)}
+                >
+                  <View style={styles.historyCardLeft}>
+                    {thumb ? (
+                      <Image source={{ uri: thumb }} style={styles.thumbnailImage} />
+                    ) : (
+                      <View style={[styles.thumbnailPlaceholder, { backgroundColor: colors.background }]}>
+                        <Text style={{ color: colors.textSubtle, fontSize: 10 }}>EI</Text>
+                      </View>
+                    )}
+                    <View style={styles.historyInfo}>
+                      <Text style={[styles.historyTitle, { color: colors.text }]} numberOfLines={1}>
+                        {title}
+                      </Text>
+                      <Text style={[styles.historyDate, { color: colors.textSubtle }]}>
+                        {new Date(item.updatedAt || item.created_at).toLocaleDateString()}
+                      </Text>
+                    </View>
                   </View>
-                </View>
-                <View style={[styles.typeBadge, { backgroundColor: colors.badgeBg, borderColor: colors.surfaceBorder }]}>
-                  <Text style={[styles.badgeText, { color: colors.primary }]}>Analysis</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
+                  <View style={styles.historyCardRight}>
+                    <View style={[styles.scoreBadge, { backgroundColor: colors.background }]}>
+                      <Text style={[styles.scoreLabel, { color: colors.textSubtle }]}>HOOK</Text>
+                      <Text style={[styles.scoreValue, { color: colors.text }]}>{hookPower}</Text>
+                    </View>
+                    <View style={[styles.typeBadge, { backgroundColor: badgeBg }]}>
+                      <Text style={[styles.badgeText, { color: badgeText }]}>{isContent ? 'Content' : 'Ad'}</Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         )}
       </ScrollView>
@@ -160,15 +192,26 @@ const styles = StyleSheet.create({
   },
   historyCardLeft: {
     flexDirection: 'row',
+    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
-  historyThumbnail: {
+  thumbnailImage: {
     width: 48,
     height: 48,
     borderRadius: 8,
+    backgroundColor: '#111111',
+  },
+  thumbnailPlaceholder: {
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   historyInfo: {
+    flex: 1,
     gap: 4,
   },
   historyTitle: {
@@ -182,11 +225,33 @@ const styles = StyleSheet.create({
     fontFamily: sansFont,
     color: '#64748b',
   },
-  typeBadge: {
+  historyCardRight: {
+    alignItems: 'flex-end',
+    gap: 6,
+  },
+  scoreBadge: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 4,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 8,
-    borderWidth: 1,
+    borderRadius: 4,
+  },
+  scoreLabel: {
+    fontSize: 9,
+    fontFamily: sansFont,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  scoreValue: {
+    fontSize: 12,
+    fontFamily: sansFont,
+    fontWeight: '700',
+  },
+  typeBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
   badgeAd: {
     backgroundColor: '#1a220d',

@@ -8,6 +8,7 @@ import {
   Platform,
   SafeAreaView,
   ScrollView,
+  Linking,
 } from 'react-native';
 import Svg, { Path, G } from 'react-native-svg';
 import { StatusBar } from 'expo-status-bar';
@@ -85,13 +86,13 @@ export default function AboutScreen() {
         </View>
 
         <View style={styles.linksSection}>
-          <TouchableOpacity style={styles.linkItem}>
+          <TouchableOpacity style={styles.linkItem} onPress={() => Linking.openURL('https://eixora.store/terms')}>
             <Text style={styles.linkText}>Terms of Service</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.linkItem}>
+          <TouchableOpacity style={styles.linkItem} onPress={() => Linking.openURL('https://eixora.store/privacy')}>
             <Text style={styles.linkText}>Privacy Policy</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.linkItem}>
+          <TouchableOpacity style={styles.linkItem} onPress={() => Linking.openURL('mailto:hello@eixora.store')}>
             <Text style={styles.linkText}>Contact Support</Text>
           </TouchableOpacity>
         </View>

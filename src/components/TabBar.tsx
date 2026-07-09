@@ -2,6 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import Svg, { Path, Circle, Rect } from 'react-native-svg';
 import { useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '../theme/ThemeContext';
 
 const BRAND_GREEN = '#bdf522';
@@ -31,19 +32,24 @@ export function TabBar({ activeTab }: { activeTab: 'home' | 'history' | 'setting
   const router = useRouter();
   const { colors } = useTheme();
 
+  const handleTabPress = (route: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.replace(route as any);
+  };
+
   return (
     <View style={[styles.tabBar, { backgroundColor: colors.tabBar, borderTopColor: colors.tabBarBorder }]}>
-      <TouchableOpacity style={styles.tabItem} onPress={() => router.replace('/home')}>
+      <TouchableOpacity style={styles.tabItem} onPress={() => handleTabPress('/home')}>
         <HomeIcon active={activeTab === 'home'} />
         {activeTab === 'home' && <View style={styles.activeDot} />}
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.tabItem} onPress={() => router.replace('/history')}>
+      <TouchableOpacity style={styles.tabItem} onPress={() => handleTabPress('/history')}>
         <HistoryIcon active={activeTab === 'history'} />
         {activeTab === 'history' && <View style={styles.activeDot} />}
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.tabItem} onPress={() => router.replace('/settings')}>
+      <TouchableOpacity style={styles.tabItem} onPress={() => handleTabPress('/settings')}>
         <SettingsIcon active={activeTab === 'settings'} />
         {activeTab === 'settings' && <View style={styles.activeDot} />}
       </TouchableOpacity>

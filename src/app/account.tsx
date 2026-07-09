@@ -123,10 +123,7 @@ export default function AccountScreen() {
             <View style={styles.avatarSection}>
               <View style={[styles.avatar, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}>
                 <Text style={styles.avatarInitial}>{name.charAt(0).toUpperCase() || 'E'}</Text>
-              </View>
-              <TouchableOpacity>
-                <Text style={styles.changeAvatarText}>Change Photo</Text>
-              </TouchableOpacity>
+            </View>
             </View>
 
             <View style={styles.form}>

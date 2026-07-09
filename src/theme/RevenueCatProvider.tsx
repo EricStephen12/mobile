@@ -11,7 +11,7 @@ const API_KEY_ANDROID = process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY || '';
 interface RevenueCatContextType {
   customerInfo: CustomerInfo | null;
   isPro: boolean;
-  tier: 'free' | 'pro';
+  tier: 'free' | 'creator' | 'studio';
   loading: boolean;
 }
 
@@ -60,8 +60,12 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
     initRevenueCat();
   }, []);
 
-  const isPro = customerInfo?.entitlements.active['Eixora Pro'] !== undefined;
-  const tier: 'free' | 'pro' = isPro ? 'pro' : 'free';
+  // Check for specific entitlements — adjust keys to match your RevenueCat dashboard
+  const isStudio = customerInfo?.entitlements.active['Eixora Studio'] !== undefined 
+    || customerInfo?.entitlements.active['Eixora Pro'] !== undefined;
+  const isCreator = customerInfo?.entitlements.active['Eixora Creator'] !== undefined;
+  const isPro = isStudio || isCreator;
+  const tier: 'free' | 'creator' | 'studio' = isStudio ? 'studio' : isCreator ? 'creator' : 'free';
 
   return (
     <RevenueCatContext.Provider value={{ customerInfo, isPro, tier, loading }}>

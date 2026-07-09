@@ -8,12 +8,15 @@ import {
   SafeAreaView,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from 'react-native';
 import Svg, { Path, Polyline, Circle } from 'react-native-svg';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
+import { useAuth } from '@clerk/clerk-expo';
 import { TabBar } from '../components/TabBar';
 import { useTheme } from '../theme/ThemeContext';
+import { useRevenueCat } from '../theme/RevenueCatProvider';
 
 const { width } = Dimensions.get('window');
 const BRAND_GREEN = '#bdf522';
@@ -52,7 +55,34 @@ const SettingsItem = ({ icon, label, onPress, value, showChevron = true, colors 
 export default function SettingsScreen() {
   const router = useRouter();
   const { isDark, toggleTheme, colors } = useTheme();
+  const { signOut } = useAuth();
+  const { tier, isPro } = useRevenueCat();
   const [notifications, setNotifications] = useState(true);
+
+  const tierLabel = tier === 'studio' ? 'Eixora Studio' : tier === 'creator' ? 'Eixora Creator' : 'Free';
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Log Out',
+      'Are you sure you want to log out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Log Out',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await signOut();
+              router.replace('/login');
+            } catch (err) {
+              console.error('Sign out error:', err);
+              router.replace('/login');
+            }
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -70,7 +100,7 @@ export default function SettingsScreen() {
             <SettingsItem label="Account" onPress={() => router.push('/account')} colors={colors} />
             <SettingsItem 
               label="Subscription" 
-              value="Free"
+              value={tierLabel}
               onPress={() => router.push('/pricing')} 
               colors={colors}
             />
@@ -101,7 +131,7 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <TouchableOpacity 
             style={[styles.logoutButton, { backgroundColor: colors.surface, borderColor: '#3f1a1a' }]} 
-            onPress={() => router.replace('/login')}
+            onPress={handleLogout}
             activeOpacity={0.8}
           >
             <Text style={styles.logoutText}>Log Out</Text>

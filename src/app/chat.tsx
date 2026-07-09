@@ -122,6 +122,8 @@ export default function ChatScreen() {
   const [inputText, setInputText] = useState('');
   const [dna, setDna] = useState<any>(null);
   const [sessionTitle, setSessionTitle] = useState('Analysis Session');
+  const [sessionMode, setSessionMode] = useState<'ad' | 'content'>('ad');
+  const [sessionThumb, setSessionThumb] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -142,6 +144,13 @@ export default function ChatScreen() {
           const data = await res.json();
           setDna(data.dna || {});
           setSessionTitle(data.title || 'Analysis Session');
+          setSessionMode(data.dna?.mode || data.mode || 'ad');
+          // Use first frame thumbnail if available
+          if (data.dna?.frames?.[0]) {
+            setSessionThumb(data.dna.frames[0]);
+          } else if (data.thumbnail) {
+            setSessionThumb(data.thumbnail);
+          }
           
           let msgs = data.messages || [];
           if (typeof msgs === 'string') {
@@ -251,15 +260,21 @@ export default function ChatScreen() {
 
         <View style={styles.headerCenter}>
           <View style={styles.campaignRow}>
-            <Image
-              source={{ uri: 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=120&h=80&fit=crop' }}
-              style={styles.thumbnail}
-            />
+            {sessionThumb ? (
+              <Image
+                source={{ uri: sessionThumb }}
+                style={styles.thumbnail}
+              />
+            ) : (
+              <View style={[styles.thumbnail, { backgroundColor: colors.surface, justifyContent: 'center', alignItems: 'center' }]}>
+                <MinimalFlower color={colors.primary} />
+              </View>
+            )}
             <View style={styles.campaignInfo}>
               <Text style={[styles.campaignTitle, { color: colors.text }]} numberOfLines={1}>{sessionTitle}</Text>
               <View style={[styles.modePill, { backgroundColor: colors.badgeBg, borderColor: colors.surfaceBorder }]}>
                 <BoltIcon color={colors.primary} />
-                <Text style={[styles.pillText, { color: colors.text }]}>Ad Intelligence</Text>
+                <Text style={[styles.pillText, { color: colors.text }]}>{sessionMode === 'content' ? 'Content Intelligence' : 'Ad Intelligence'}</Text>
               </View>
             </View>
           </View>

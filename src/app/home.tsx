@@ -12,13 +12,16 @@ import {
   KeyboardAvoidingView,
   Image,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import Svg, { Path, G, Polygon } from 'react-native-svg';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import { TabBar } from '../components/TabBar';
 import { useTheme } from '../theme/ThemeContext';
+import { useRevenueCat } from '../theme/RevenueCatProvider';
 
 const { width } = Dimensions.get('window');
 
@@ -68,36 +71,7 @@ const FilterIcon = () => (
   </Svg>
 );
 
-// --- Recent analyses mock data ---
-const RECENT = [
-  {
-    id: '1',
-    title: 'Skincare Ad Breakdown',
-    date: 'May 16, 2025',
-    badge: 'Ad',
-    badgeColor: '#bdf522',
-    badgeText: '#000000',
-    thumb: 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=120&h=80&fit=crop',
-  },
-  {
-    id: '2',
-    title: 'TikTok UGC Analysis',
-    date: 'May 14, 2025',
-    badge: 'Content',
-    badgeColor: '#1e293b',
-    badgeText: '#94a3b8',
-    thumb: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=120&h=80&fit=crop',
-  },
-  {
-    id: '3',
-    title: 'Meta Ad Deep Dive',
-    date: 'May 12, 2025',
-    badge: 'Ad',
-    badgeColor: '#bdf522',
-    badgeText: '#000000',
-    thumb: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=120&h=80&fit=crop',
-  },
-];
+
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -105,6 +79,7 @@ export default function HomeScreen() {
   const { isDark, colors } = useTheme();
   const { getToken } = useAuth();
   const { user } = useUser();
+  const { isPro } = useRevenueCat();
   const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:4000';
   
   const initialMode = params.lens === 'content' ? 'content' : 'ad';
@@ -113,6 +88,10 @@ export default function HomeScreen() {
   const [mode, setMode] = useState<'ad' | 'content'>(initialMode);
   const [recent, setRecent] = useState<any[]>([]);
   const [loadingRecent, setLoadingRecent] = useState(true);
+  const [scanCount, setScanCount] = useState(0);
+
+  const FREE_SCAN_LIMIT = 3;
+  const scansRemaining = isPro ? '∞' : Math.max(0, FREE_SCAN_LIMIT - scanCount);
 
   useEffect(() => {
     const fetchRecent = async () => {
@@ -125,6 +104,7 @@ export default function HomeScreen() {
         if (res.ok) {
           const data = await res.json();
           setRecent((data || []).slice(0, 3));
+          setScanCount((data || []).length);
         }
       } catch (err) {
         console.error('Fetch recent error:', err);
@@ -141,7 +121,25 @@ export default function HomeScreen() {
   const modeText = mode === 'ad' ? "Ad Intelligence" : "Content Intelligence";
 
   const handleToggleMode = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setMode(prev => prev === 'ad' ? 'content' : 'ad');
+  };
+
+  const handleAnalyze = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (!link) return;
+    if (!isPro && scanCount >= FREE_SCAN_LIMIT) {
+      Alert.alert(
+        'Scan Limit Reached',
+        `You've used all ${FREE_SCAN_LIMIT} free scans this month. Upgrade to Eixora Creator or Studio for more.`,
+        [
+          { text: 'Maybe Later', style: 'cancel' },
+          { text: 'Upgrade', onPress: () => router.push('/pricing') },
+        ]
+      );
+      return;
+    }
+    router.push({ pathname: '/analyzing', params: { url: link, mode: mode } });
   };
 
   return (
@@ -189,11 +187,18 @@ export default function HomeScreen() {
                 style={[styles.goButton, { backgroundColor: activeColor }, !link && styles.goButtonDisabled]}
                 activeOpacity={0.85}
                 disabled={!link}
-                onPress={() => router.push({ pathname: '/analyzing', params: { url: link, mode: mode } })}
+                onPress={handleAnalyze}
               >
                 <ArrowIcon />
               </TouchableOpacity>
             </View>
+            {!isPro && (
+              <View style={styles.scanCountRow}>
+                <Text style={[styles.scanCountText, { color: colors.textSubtle }]}>
+                  {scansRemaining} of {FREE_SCAN_LIMIT} free scans remaining
+                </Text>
+              </View>
+            )}
           </View>
           {/* ───────── RECENT ───────── */}
           <View style={styles.recentSection}>
@@ -410,5 +415,15 @@ const styles = StyleSheet.create({
     fontFamily: sansFont,
     fontWeight: '700',
     letterSpacing: 0.5,
+  },
+  scanCountRow: {
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  scanCountText: {
+    fontSize: 11,
+    fontFamily: sansFont,
+    fontWeight: '600',
+    letterSpacing: 0.3,
   },
 });

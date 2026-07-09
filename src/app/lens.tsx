@@ -11,6 +11,7 @@ import {
 import Svg, { Path, G, Circle } from 'react-native-svg';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '../theme/ThemeContext';
 
 const { width } = Dimensions.get('window');
@@ -64,7 +65,13 @@ export default function LensScreen() {
   const { isDark, colors } = useTheme();
   const [selectedLens, setSelectedLens] = useState<'ad' | 'content'>('ad');
 
+  const handleSelectLens = (lens: 'ad' | 'content') => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setSelectedLens(lens);
+  };
+
   const handleContinue = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     // Navigate to home dashboard after choosing lens
     router.replace({ pathname: '/home', params: { lens: selectedLens } });
   };
@@ -95,7 +102,7 @@ export default function LensScreen() {
               { backgroundColor: colors.surface, borderColor: colors.surfaceBorder },
               selectedLens === 'ad' && [styles.cardSelected, { backgroundColor: colors.badgeBg }]
             ]}
-            onPress={() => setSelectedLens('ad')}
+            onPress={() => handleSelectLens('ad')}
             activeOpacity={0.8}
           >
             <View style={styles.cardTop}>
@@ -119,7 +126,7 @@ export default function LensScreen() {
               { backgroundColor: colors.surface, borderColor: colors.surfaceBorder },
               selectedLens === 'content' && [styles.cardSelected, { backgroundColor: colors.badgeBg }]
             ]}
-            onPress={() => setSelectedLens('content')}
+            onPress={() => handleSelectLens('content')}
             activeOpacity={0.8}
           >
             <View style={styles.cardTop}>
