@@ -8,6 +8,8 @@ import { RevenueCatProvider } from '../theme/RevenueCatProvider';
 import { ClerkProvider } from '@clerk/clerk-expo';
 import { tokenCache } from '../theme/tokenCache';
 
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
 const clerkPublishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 
 if (!clerkPublishableKey) {
@@ -36,29 +38,29 @@ export default function RootLayout() {
   }
 
   return (
-    <>
+    <SafeAreaProvider>
       <StatusBar style="dark" />
-    <ClerkProvider publishableKey={clerkPublishableKey} tokenCache={tokenCache}>
-      <ThemeProvider>
-        <RevenueCatProvider>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="index" />
-            <Stack.Screen name="login" />
-            <Stack.Screen name="signup" />
-            <Stack.Screen name="forgot" />
-            <Stack.Screen name="lens" />
-            <Stack.Screen name="home" />
-            <Stack.Screen name="history" />
-            <Stack.Screen name="settings" />
-            <Stack.Screen name="account" />
-            <Stack.Screen name="about" />
-            <Stack.Screen name="pricing" />
-            <Stack.Screen name="analyzing" />
-            <Stack.Screen name="chat" />
-          </Stack>
-        </RevenueCatProvider>
-      </ThemeProvider>
-    </ClerkProvider>
-    </>
+      <ClerkProvider publishableKey={clerkPublishableKey} tokenCache={tokenCache}>
+        <ThemeProvider>
+          <RevenueCatProvider>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="index" />
+              <Stack.Screen name="login" />
+              <Stack.Screen name="signup" />
+              <Stack.Screen name="forgot" />
+              <Stack.Screen name="lens" />
+              <Stack.Screen name="home" />
+              <Stack.Screen name="history" />
+              <Stack.Screen name="settings" />
+              <Stack.Screen name="account" />
+              <Stack.Screen name="about" />
+              <Stack.Screen name="pricing" />
+              <Stack.Screen name="analyzing" />
+              <Stack.Screen name="chat" />
+            </Stack>
+          </RevenueCatProvider>
+        </ThemeProvider>
+      </ClerkProvider>
+    </SafeAreaProvider>
   );
 }

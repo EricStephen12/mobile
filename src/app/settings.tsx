@@ -1,15 +1,6 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  Dimensions,
-  Platform,
-  SafeAreaView,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-} from 'react-native';
+import { StyleSheet, View, Text, Dimensions, Platform, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import Svg, { Path, Polyline, Circle } from 'react-native-svg';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';

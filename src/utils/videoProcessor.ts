@@ -9,21 +9,17 @@ export interface ExtractedFrame {
 
 export async function downloadVideo(url: string, progressCallback?: (progress: number) => void): Promise<string> {
   const filename = url.split('/').pop()?.split('?')[0] || `video_${Date.now()}.mp4`;
-  // @ts-ignore - Types missing in current expo-file-system version
-  const fileUri = `${FileSystem.cacheDirectory}${filename}`;
-
-  const downloadResumable = FileSystem.createDownloadResumable(
-    url,
-    fileUri,
-    {},
-    (downloadProgress) => {
-      const progress = downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite;
-      if (progressCallback) progressCallback(progress);
-    }
-  );
+  const fileUri = `${FileSystem.documentDirectory}${filename}`;
 
   try {
-    const result = await downloadResumable.downloadAsync();
+    // Call progress once to show starting
+    if (progressCallback) progressCallback(0.1);
+
+    // Using standard downloadAsync instead of Resumable to avoid legacy expo-file-system warnings
+    const result = await FileSystem.downloadAsync(url, fileUri);
+    
+    if (progressCallback) progressCallback(1.0);
+
     if (!result || !result.uri) throw new Error('Failed to download video');
     return result.uri;
   } catch (e) {
@@ -34,7 +30,7 @@ export async function downloadVideo(url: string, progressCallback?: (progress: n
 export async function extractFrames(
   fileUri: string,
   durationMs: number,
-  maxFramesToExtract: number = 30
+  maxFramesToExtract: number = 15 // Lowered from 30 to 15 for 2x faster performance
 ): Promise<ExtractedFrame[]> {
   const frames: ExtractedFrame[] = [];
   
@@ -50,29 +46,39 @@ export async function extractFrames(
     timestamps.push(durationMs - 100 > 0 ? durationMs - 100 : 0);
   }
 
-  for (const timeMs of timestamps) {
-    try {
-      const { uri } = await VideoThumbnails.getThumbnailAsync(fileUri, {
-        time: timeMs,
-        quality: 0.5,
-      });
-      
-      // @ts-ignore
-      const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
-      
-      frames.push({
-        timestamp: timeMs / 1000,
-        base64,
-        mimeType: 'image/jpeg'
-      });
-      
-      await FileSystem.deleteAsync(uri, { idempotent: true });
-    } catch (e) {
-      // Ignore individual frame extraction failures
+  // Process frames in parallel batches for significant speedup
+  const batchSize = 3; 
+  for (let i = 0; i < timestamps.length; i += batchSize) {
+    const batch = timestamps.slice(i, i + batchSize);
+    
+    const batchPromises = batch.map(async (timeMs) => {
+      try {
+        const { uri } = await VideoThumbnails.getThumbnailAsync(fileUri, {
+          time: timeMs,
+          quality: 0.5,
+        });
+        
+        const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+        
+        await FileSystem.deleteAsync(uri, { idempotent: true });
+
+        return {
+          timestamp: timeMs / 1000,
+          base64,
+          mimeType: 'image/jpeg'
+        };
+      } catch (e) {
+        return null;
+      }
+    });
+
+    const results = await Promise.all(batchPromises);
+    for (const res of results) {
+      if (res) frames.push(res);
     }
   }
 
-  return frames;
+  return frames.sort((a, b) => a.timestamp - b.timestamp);
 }
 
 export async function cleanupVideo(fileUri: string) {

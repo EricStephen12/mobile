@@ -16,7 +16,7 @@ import Svg, { Path, G } from 'react-native-svg';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../theme/ThemeContext';
-import { useSignIn } from '@clerk/clerk-expo';
+import { useSignIn, useAuth } from '@clerk/clerk-expo';
 
 const { width, height } = Dimensions.get('window');
 const BRAND_GREEN = '#bdf522';
@@ -57,6 +57,7 @@ export default function LoginScreen() {
   const [mfaCode, setMfaCode] = useState('');
 
   const { signIn, setActive, isLoaded } = useSignIn();
+  const { signOut } = useAuth();
 
   const handleSignIn = async () => {
     if (!isLoaded || !email || !password) return;
@@ -76,11 +77,24 @@ export default function LoginScreen() {
         await signIn.prepareSecondFactor({ strategy: 'email_code' });
         setIsMfaPending(true);
       } else {
-        console.error(JSON.stringify(signInAttempt, null, 2));
+        // If status is null and there are no supported factors, the account likely doesn't exist
+        if (!signInAttempt.status && signInAttempt.supportedFirstFactors?.length === 0) {
+          alert('Account not found. Please tap "Create an Account" first.');
+        } else {
+          alert('Sign in incomplete. Please check your credentials or create an account.');
+        }
+        console.error('Incomplete Sign-In Attempt:', JSON.stringify(signInAttempt, null, 2));
       }
     } catch (err: any) {
-      console.error(JSON.stringify(err, null, 2));
-      alert(err.errors?.[0]?.message || 'Sign in failed');
+      if (err.errors?.[0]?.code === 'session_exists') {
+        // The backend thinks we are logged in, but the frontend doesn't.
+        // We force sign out the old session to reset the state.
+        await signOut();
+        alert('Stale session detected and cleared. Please click Sign In again.');
+      } else {
+        console.error(JSON.stringify(err, null, 2));
+        alert(err.errors?.[0]?.message || 'Sign in failed');
+      }
     } finally {
       setLoading(false);
     }

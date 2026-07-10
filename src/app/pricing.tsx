@@ -1,16 +1,6 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useEffect, useState } from 'react';
-import { 
-  SafeAreaView, 
-  StyleSheet, 
-  Platform, 
-  View, 
-  Text, 
-  TouchableOpacity, 
-  ScrollView, 
-  ActivityIndicator, 
-  Alert,
-  Linking
-} from 'react-native';
+import { StyleSheet, Platform, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Linking } from 'react-native';
 import Purchases, { PurchasesPackage } from 'react-native-purchases';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';

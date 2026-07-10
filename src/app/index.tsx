@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, View, Text, Image, ImageBackground, TouchableOpacity, Dimensions, Platform, SafeAreaView, FlatList } from 'react-native';
+import { StyleSheet, View, Text, Image, ImageBackground, TouchableOpacity, Dimensions, Platform, FlatList } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withDelay, runOnJS } from 'react-native-reanimated';
 import Svg, { Path, G, Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 import { StatusBar } from 'expo-status-bar';
@@ -127,6 +128,7 @@ export default function AppFlow() {
   }));
 
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   const handleGetStarted = () => {
     router.push('/signup');
@@ -205,7 +207,13 @@ export default function AppFlow() {
           />
 
           {/* Absolute Buttons over the carousel */}
-          <SafeAreaView style={styles.absoluteButtonContainer} pointerEvents="box-none">
+          <View 
+            style={[
+              styles.absoluteButtonContainer, 
+              { paddingBottom: Platform.OS === 'ios' ? Math.max(insets.bottom, 12) : Math.max(insets.bottom, 24) }
+            ]} 
+            pointerEvents="box-none"
+          >
             <View style={styles.buttonContainer}>
               <TouchableOpacity
                 style={styles.getStartedButton}
@@ -223,7 +231,7 @@ export default function AppFlow() {
                 <Text style={styles.signInText}>SIGN IN</Text>
               </TouchableOpacity>
             </View>
-          </SafeAreaView>
+          </View>
         </Animated.View>
       )}
     </View>
