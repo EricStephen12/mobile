@@ -30,7 +30,6 @@ import Svg, {
 } from 'react-native-svg';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { downloadVideo, extractFrames, cleanupVideo } from '../utils/videoProcessor';
 import { useTheme } from '../theme/ThemeContext';
 import { useAuth } from '@clerk/clerk-expo';
 
@@ -251,11 +250,6 @@ export default function AnalyzingScreen() {
           throw new Error('No video URL provided');
         }
 
-        localVideoPath = await downloadVideo(url);
-        const durationMs = 15000;
-
-        const frames = await extractFrames(localVideoPath, durationMs, 30);
-
         const token = await getToken();
 
         const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:4000';
@@ -266,8 +260,6 @@ export default function AnalyzingScreen() {
             'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
-            frames,
-            duration: durationMs / 1000,
             sourceUrl: url,
             userId,
             mode: mode || 'ad',
@@ -302,7 +294,7 @@ export default function AnalyzingScreen() {
               }
             } catch (pollErr: any) {
               // If it's the specific failed error, throw it to the outer catch block
-              if (pollErr.message === 'Server failed to analyze video') {
+              if (pollErr.message === 'Server failed to analyze video' || pollErr.message.includes('too long') || pollErr.message.includes('extract frames')) {
                 throw pollErr;
               }
               console.error('Polling warning:', pollErr);
@@ -313,10 +305,6 @@ export default function AnalyzingScreen() {
       } catch (err: any) {
         if (isMounted) {
           setErrorMsg(err.message || 'An error occurred during analysis');
-        }
-      } finally {
-        if (localVideoPath) {
-          cleanupVideo(localVideoPath);
         }
       }
     }
