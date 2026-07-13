@@ -181,7 +181,6 @@ const styles = StyleSheet.create({
     borderColor: '#1e293b',
   },
   historyCardLeft: {
-    flexDirection: 'row',
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
