@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path, G } from 'react-native-svg';
@@ -77,11 +78,11 @@ export default function LoginScreen() {
         await signIn.prepareSecondFactor({ strategy: 'email_code' });
         setIsMfaPending(true);
       } else {
-        // If status is null and there are no supported factors, the account likely doesn't exist
-        if (!signInAttempt.status && signInAttempt.supportedFirstFactors?.length === 0) {
-          alert('Account not found. Please tap "Create an Account" first.');
+        // If status is null, the account likely doesn't exist or hasn't been created
+        if (!signInAttempt.status) {
+          Alert.alert('Account not found', 'Please tap "Create an Account" first.');
         } else {
-          alert('Sign in incomplete. Please check your credentials or create an account.');
+          Alert.alert('Sign in incomplete', 'Please check your credentials or create an account.');
         }
         console.error('Incomplete Sign-In Attempt:', JSON.stringify(signInAttempt, null, 2));
       }
@@ -90,10 +91,10 @@ export default function LoginScreen() {
         // The backend thinks we are logged in, but the frontend doesn't.
         // We force sign out the old session to reset the state.
         await signOut();
-        alert('Stale session detected and cleared. Please click Sign In again.');
+        Alert.alert('Stale session', 'Old session detected and cleared. Please click Sign In again.');
       } else {
         console.error(JSON.stringify(err, null, 2));
-        alert(err.errors?.[0]?.message || 'Sign in failed');
+        Alert.alert('Sign in failed', err.errors?.[0]?.message || 'Sign in failed');
       }
     } finally {
       setLoading(false);
@@ -113,11 +114,11 @@ export default function LoginScreen() {
         router.replace('/lens');
       } else {
         console.error(attempt);
-        alert('Invalid MFA code');
+        Alert.alert('Verification failed', 'Invalid MFA code');
       }
     } catch (err: any) {
       console.error(err);
-      alert(err.errors?.[0]?.message || 'Verification failed');
+      Alert.alert('Verification failed', err.errors?.[0]?.message || 'Verification failed');
     } finally {
       setLoading(false);
     }
