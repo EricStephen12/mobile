@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import { TabBar } from '../components/TabBar';
 import { useTheme } from '../theme/ThemeContext';
+import { AmbientGlow } from '../components/AmbientGlow';
 
 const { width } = Dimensions.get('window');
 const BRAND_GREEN = '#bdf522';
@@ -65,6 +66,7 @@ export default function HistoryScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <AmbientGlow />
       <StatusBar style={isDark ? "light" : "dark"} />
       
       {/* ── HEADER ── */}

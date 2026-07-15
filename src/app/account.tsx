@@ -7,6 +7,7 @@ import { useAuth, useUser } from '@clerk/clerk-expo';
 import Svg, { Path } from 'react-native-svg';
 import RevenueCatUI from 'react-native-purchases-ui';
 import { useTheme } from '../theme/ThemeContext';
+import { AmbientGlow } from '../components/AmbientGlow';
 
 const BRAND_GREEN = '#bdf522';
 
@@ -91,6 +92,7 @@ export default function AccountScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <AmbientGlow />
       <StatusBar style={isDark ? "light" : "dark"} />
       
       {/* ── HEADER ── */}
@@ -148,6 +150,14 @@ export default function AccountScreen() {
               >
                 <Text style={{ color: colors.text, fontFamily: sansFont, fontWeight: '600', textAlign: 'center' }}>Manage Subscription</Text>
               </TouchableOpacity>
+              <TouchableOpacity 
+                style={{ padding: 16, backgroundColor: colors.surface, borderRadius: 12, marginTop: 16, borderWidth: 1, borderColor: colors.surfaceBorder }} 
+                activeOpacity={0.7}
+                onPress={() => router.push('/questionnaire')}
+              >
+                <Text style={{ color: BRAND_GREEN, fontFamily: sansFont, fontWeight: '600', textAlign: 'center' }}>Update Profile Questionnaire</Text>
+              </TouchableOpacity>
+
             </View>
 
           </ScrollView>
@@ -194,7 +204,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontFamily: serifFont,
-    fontWeight: '700',
     color: '#ffffff',
   },
   content: {

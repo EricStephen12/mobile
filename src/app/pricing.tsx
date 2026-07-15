@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import Svg, { Path, G, Circle, Rect } from 'react-native-svg';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '../theme/ThemeContext';
+import { AmbientGlow } from '../components/AmbientGlow';
 
 const { width } = require('react-native').Dimensions.get('window');
 const BRAND_GREEN = '#bdf522';
@@ -105,7 +106,7 @@ export default function PricingScreen() {
       price: '$5',
       period: '/mo',
       badge: 'Essential Access',
-      features: ['30 Studio Scans / mo', '30 Strategy Briefs / mo', 'Creative Lounge Access']
+      features: ['30 Studio Scans / mo', 'Up to 5 minute videos', '30 Strategy Briefs / mo', 'Creative Lounge Access']
     },
     {
       id: 'studio',
@@ -113,12 +114,13 @@ export default function PricingScreen() {
       price: '$10',
       period: '/mo',
       badge: 'Best Value',
-      features: ['250 Studio Scans / mo', '250 Strategy Briefs / mo', 'Priority AI Speed', 'Advanced PDF Exports']
+      features: ['250 Studio Scans / mo', 'Up to 30 minute videos', '250 Strategy Briefs / mo', 'Priority AI Speed', 'Advanced PDF Exports']
     }
   ];
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <AmbientGlow />
       <StatusBar style={isDark ? "light" : "dark"} />
       
       <View style={[styles.header, { borderBottomColor: colors.surface }]}>
@@ -247,7 +249,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontFamily: serifFont,
-    fontWeight: '700',
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -309,7 +310,6 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 24,
     fontFamily: serifFont,
-    fontWeight: '700',
     marginBottom: 12,
   },
   priceRow: {

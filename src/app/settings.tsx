@@ -8,6 +8,7 @@ import { useAuth } from '@clerk/clerk-expo';
 import { TabBar } from '../components/TabBar';
 import { useTheme } from '../theme/ThemeContext';
 import { useRevenueCat } from '../theme/RevenueCatProvider';
+import { AmbientGlow } from '../components/AmbientGlow';
 
 const { width } = Dimensions.get('window');
 const BRAND_GREEN = '#bdf522';
@@ -77,6 +78,7 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <AmbientGlow />
       <StatusBar style={isDark ? "light" : "dark"} />
       
       {/* ── HEADER ── */}

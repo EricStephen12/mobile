@@ -31,7 +31,8 @@ import Svg, {
 import { StatusBar } from 'expo-status-bar';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '../theme/ThemeContext';
-import { useAuth } from '@clerk/clerk-expo';
+import { useAuth, useUser } from '@clerk/clerk-expo';
+import { AmbientGlow } from '../components/AmbientGlow';
 
 const { width, height } = Dimensions.get('window');
 const BRAND_GREEN = '#bdf522';
@@ -227,6 +228,7 @@ export default function AnalyzingScreen() {
   // Flower pulsing glow
   const glowOpacity = useSharedValue(0.7);
   const { getToken, userId } = useAuth();
+  const { user } = useUser();
 
   const { url, mode } = useLocalSearchParams<{ url: string; mode?: string }>();
   const [errorMsg, setErrorMsg] = React.useState('');
@@ -318,6 +320,7 @@ export default function AnalyzingScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <AmbientGlow />
       <StatusBar style={isDark ? "light" : "dark"} />
 
       <View style={styles.content}>

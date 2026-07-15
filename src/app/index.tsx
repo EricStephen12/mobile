@@ -4,7 +4,9 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withDelay, runOnJS } from 'react-native-reanimated';
 import Svg, { Path, G, Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 import { StatusBar } from 'expo-status-bar';
-import { useRouter } from 'expo-router';
+import { useRouter, useRootNavigationState } from 'expo-router';
+import { useAuth } from '@clerk/clerk-expo';
+import { AmbientGlow } from '../components/AmbientGlow';
 
 const { width, height } = Dimensions.get('window');
 
@@ -104,7 +106,25 @@ export default function AppFlow() {
   }, [stage]);
 
 
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { isLoaded, isSignedIn } = useAuth();
+  const rootNavigationState = useRootNavigationState();
+
   useEffect(() => {
+    if (!rootNavigationState?.key) return; // Wait until router is mounted
+    // If the user is already signed in, immediately bypass the onboarding
+    if (isLoaded && isSignedIn) {
+      // Use setTimeout to ensure the current render cycle finishes cleanly
+      setTimeout(() => {
+        router.replace('/home');
+      }, 0);
+    }
+  }, [isLoaded, isSignedIn, rootNavigationState?.key]);
+
+  useEffect(() => {
+    if (isLoaded && isSignedIn) return; // Don't run the splash timer if we're bypassing
+
     // Automatically transition from splash to onboarding stage after 2.5 seconds
     const timer = setTimeout(() => {
       // Fade out splash
@@ -117,7 +137,7 @@ export default function AppFlow() {
     }, 2500);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isLoaded, isSignedIn]);
 
   const animatedSplashStyle = useAnimatedStyle(() => ({
     opacity: splashOpacity.value,
@@ -127,11 +147,8 @@ export default function AppFlow() {
     opacity: onboardingOpacity.value,
   }));
 
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
-
   const handleGetStarted = () => {
-    router.push('/signup');
+    router.push('/login');
   };
 
   const handleSignIn = () => {
@@ -140,6 +157,7 @@ export default function AppFlow() {
 
   return (
     <View style={[styles.container, stage === 'onboarding' ? styles.bgBlack : styles.bgGreen]}>
+      <AmbientGlow />
       <StatusBar style={statusBarColor} />
 
       {stage === 'splash' && (
@@ -283,7 +301,6 @@ const styles = StyleSheet.create({
   brandTextSide: {
     fontSize: 52,
     fontFamily: serifFont,
-    fontWeight: 'bold',
     color: '#000000',
     letterSpacing: 2,
   },
@@ -335,7 +352,6 @@ const styles = StyleSheet.create({
   onboardingTitle: {
     fontSize: 37,
     fontFamily: serifFont,
-    fontWeight: '800',
     color: '#ffffff',
     textAlign: 'center',
     lineHeight: 46,

@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import { useTheme } from '../theme/ThemeContext';
+import { AmbientGlow } from '../components/AmbientGlow';
 
 const { width } = Dimensions.get('window');
 
@@ -23,13 +24,6 @@ const BackArrow = ({ color }: { color: string }) => (
   </Svg>
 );
 
-const DotsMenu = ({ color }: { color: string }) => (
-  <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-    <Circle cx="5" cy="12" r="1.5" fill={color} stroke="none" />
-    <Circle cx="12" cy="12" r="1.5" fill={color} stroke="none" />
-    <Circle cx="19" cy="12" r="1.5" fill={color} stroke="none" />
-  </Svg>
-);
 
 const BoltIcon = ({ color }: { color: string }) => (
   <Svg width={10} height={10} viewBox="0 0 24 24" fill={color} stroke="none">
@@ -145,7 +139,8 @@ export default function ChatScreen() {
             try { msgs = JSON.parse(msgs); } catch(e){}
           }
           if (msgs.length === 0) {
-            msgs = [{ id: 'init', role: 'assistant', sender: 'ai', text: "Hey there! I've just watched this video. Ask me anything about its hook, pacing, or psychology!" }];
+            const firstName = user?.firstName || 'there';
+            msgs = [{ id: 'init', role: 'assistant', sender: 'ai', text: `Hey ${firstName}! I've just watched this video. Ask me anything about its hook, pacing, or psychology!` }];
           } else {
             // Map existing api format (role, content) to UI format (sender, text) if needed
             msgs = msgs.map((m: any, i: number) => ({
@@ -238,6 +233,7 @@ export default function ChatScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <AmbientGlow />
       <StatusBar style={isDark ? "light" : "dark"} />
 
       {/* ── HEADER ── */}
@@ -259,18 +255,14 @@ export default function ChatScreen() {
               </View>
             )}
             <View style={styles.campaignInfo}>
-              <Text style={[styles.campaignTitle, { color: colors.text }]} numberOfLines={1}>{sessionTitle}</Text>
+              <Text style={[styles.campaignTitle, { color: colors.text }]}>{sessionTitle}</Text>
               <View style={[styles.modePill, { backgroundColor: colors.badgeBg, borderColor: colors.surfaceBorder }]}>
                 <BoltIcon color={colors.primary} />
                 <Text style={[styles.pillText, { color: colors.text }]}>{sessionMode === 'content' ? 'Content Intelligence' : 'Ad Intelligence'}</Text>
               </View>
             </View>
-          </View>
+                  </View>
         </View>
-
-        <TouchableOpacity style={styles.menuButton}>
-          <DotsMenu color={colors.text} />
-        </TouchableOpacity>
       </View>
 
       <KeyboardAvoidingView

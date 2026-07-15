@@ -5,6 +5,7 @@ import Svg, { Path, G } from 'react-native-svg';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../theme/ThemeContext';
+import { AmbientGlow } from '../components/AmbientGlow';
 
 const { width } = Dimensions.get('window');
 const BRAND_GREEN = '#bdf522';
@@ -45,6 +46,7 @@ export default function AboutScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <AmbientGlow />
       <StatusBar style={isDark ? "light" : "dark"} />
       
       {/* ── HEADER ── */}
@@ -113,7 +115,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontFamily: serifFont,
-    fontWeight: '700',
     color: '#ffffff',
   },
   scrollContent: {
@@ -129,7 +130,6 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 28,
     fontFamily: serifFont,
-    fontWeight: '800',
     color: '#ffffff',
     letterSpacing: 2,
     marginTop: 16,

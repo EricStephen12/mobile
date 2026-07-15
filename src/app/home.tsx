@@ -1,6 +1,6 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, Dimensions, Platform, ScrollView, KeyboardAvoidingView, Image, ActivityIndicator, Alert } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, Dimensions, Platform, ScrollView, KeyboardAvoidingView, Image, ActivityIndicator, Alert, Modal } from 'react-native';
 import Svg, { Path, G, Polygon } from 'react-native-svg';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -9,9 +9,9 @@ import { useAuth, useUser } from '@clerk/clerk-expo';
 import { TabBar } from '../components/TabBar';
 import { useTheme } from '../theme/ThemeContext';
 import { useRevenueCat } from '../theme/RevenueCatProvider';
+import { AmbientGlow } from '../components/AmbientGlow';
 
 const { width } = Dimensions.get('window');
-
 
 const serifFont = Platform.select({
   ios: 'Singsong',
@@ -38,8 +38,6 @@ const LeafLogoX = ({ size = 28, color = '#bdf522' }: { size?: number; color?: st
   );
 };
 
-
-
 const BoltIcon = ({ color }: { color: string }) => (
   <Svg width={13} height={13} viewBox="0 0 24 24" fill={color} stroke="none">
     <Polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
@@ -58,8 +56,6 @@ const FilterIcon = () => (
   </Svg>
 );
 
-
-
 export default function HomeScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -76,6 +72,7 @@ export default function HomeScreen() {
   const [recent, setRecent] = useState<any[]>([]);
   const [loadingRecent, setLoadingRecent] = useState(true);
   const [scanCount, setScanCount] = useState(0);
+  const [showLimitModal, setShowLimitModal] = useState(false);
 
   const FREE_SCAN_LIMIT = 3;
   const scansRemaining = isPro ? '∞' : Math.max(0, FREE_SCAN_LIMIT - scanCount);
@@ -103,7 +100,7 @@ export default function HomeScreen() {
   }, [user]);
 
   const BRAND_GREEN = colors.primary;
-  const activeColor = mode === 'ad' ? BRAND_GREEN : colors.text;
+  const activeColor = BRAND_GREEN;
   const placeholderText = mode === 'ad' ? "Paste ad link..." : "Paste content link...";
   const modeText = mode === 'ad' ? "Ad Intelligence" : "Content Intelligence";
 
@@ -116,14 +113,7 @@ export default function HomeScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     if (!link) return;
     if (!isPro && scanCount >= FREE_SCAN_LIMIT) {
-      Alert.alert(
-        'Scan Limit Reached',
-        `You've used all ${FREE_SCAN_LIMIT} free scans this month. Upgrade to Eixora Creator or Studio for more.`,
-        [
-          { text: 'Maybe Later', style: 'cancel' },
-          { text: 'Upgrade', onPress: () => router.push('/pricing') },
-        ]
-      );
+      setShowLimitModal(true);
       return;
     }
     router.push({ pathname: '/analyzing', params: { url: link, mode: mode } });
@@ -131,6 +121,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <AmbientGlow />
       <StatusBar style={isDark ? "light" : "dark"} />
       <KeyboardAvoidingView style={styles.keyboardView} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         {/* ───────── TOP NAV ───────── */}
@@ -141,13 +132,20 @@ export default function HomeScreen() {
             <Text style={[styles.logoTextRight, { color: colors.text }]}>ORA</Text>
           </View>
           <TouchableOpacity style={[styles.avatar, { borderColor: colors.surfaceBorder, backgroundColor: colors.surface }]} activeOpacity={0.8}>
-            <Text style={[styles.avatarInitial, { color: colors.text }]}>E</Text>
+            <Text style={[styles.avatarInitial, { color: colors.text }]}>{user?.firstName ? user.firstName.charAt(0).toUpperCase() : 'E'}</Text>
           </TouchableOpacity>
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           
+          
+          {/* ───────── GREETING ───────── */}
+          <Text style={[styles.greeting, { color: colors.text }]}>
+            Welcome back, {user?.firstName || 'Creator'}.
+          </Text>
+
           {/* ───────── MODE PILL ───────── */}
+
           <View style={styles.pillRow}>
             <TouchableOpacity style={[styles.modePill, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]} activeOpacity={0.85} onPress={handleToggleMode}>
               {mode === 'ad' ? <BoltIcon color={activeColor} /> : <View style={[styles.contentDot, { backgroundColor: activeColor }]} />}
@@ -179,13 +177,13 @@ export default function HomeScreen() {
                 <ArrowIcon />
               </TouchableOpacity>
             </View>
-            {!isPro && (
-              <View style={styles.scanCountRow}>
-                <Text style={[styles.scanCountText, { color: colors.textSubtle }]}>
-                  {scansRemaining} of {FREE_SCAN_LIMIT} free scans remaining
-                </Text>
-              </View>
-            )}
+                        <View style={styles.scanCountRow}>
+              <Text style={[styles.scanCountText, { color: colors.textSubtle }]}>
+                {!isPro 
+                  ? `${scansRemaining} of ${FREE_SCAN_LIMIT} free scans remaining • Max 90s video` 
+                  : `Unlimited Scans • Extended video length enabled`}
+              </Text>
+            </View>
           </View>
           {/* ───────── RECENT ───────── */}
           <View style={styles.recentSection}>
@@ -222,6 +220,42 @@ export default function HomeScreen() {
         </ScrollView>
       </KeyboardAvoidingView>
 
+      {/* ───────── LIMIT MODAL ───────── */}
+      <Modal
+        visible={showLimitModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowLimitModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>SCAN LIMIT REACHED</Text>
+            <Text style={[styles.modalMessage, { color: colors.textSubtle }]}>
+              You've used all {FREE_SCAN_LIMIT} free scans this month. Upgrade to Eixora Creator or Studio for unlimited intelligence.
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: '#1e293b' }]}
+                onPress={() => setShowLimitModal(false)}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.modalButtonText, { color: '#ffffff' }]}>Later</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: BRAND_GREEN }]}
+                onPress={() => {
+                  setShowLimitModal(false);
+                  router.push('/pricing');
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.modalButtonText, { color: '#000000' }]}>Upgrade</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* ───────── BOTTOM TAB BAR ───────── */}
       <TabBar activeTab="home" />
     </SafeAreaView>
@@ -251,14 +285,12 @@ const styles = StyleSheet.create({
   logoTextLeft: {
     fontSize: 22,
     fontFamily: serifFont,
-    fontWeight: 'bold',
     color: '#ffffff',
     letterSpacing: 1,
   },
   logoTextRight: {
     fontSize: 22,
     fontFamily: serifFont,
-    fontWeight: 'bold',
     color: '#ffffff',
     letterSpacing: 1,
   },
@@ -281,6 +313,13 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 18,
     paddingBottom: 20,
+  },
+    greeting: {
+    fontSize: 28,
+    fontFamily: serifFont,
+    paddingHorizontal: 20,
+    marginTop: 10,
+    marginBottom: 24,
   },
   pillRow: {
     alignItems: 'center',
@@ -335,7 +374,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 26,
     fontFamily: serifFont,
-    fontWeight: '700',
     color: '#ffffff',
     padding: 0,
   },
@@ -412,5 +450,51 @@ const styles = StyleSheet.create({
     fontFamily: sansFont,
     fontWeight: '600',
     letterSpacing: 0.3,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalContent: {
+    width: '100%',
+    borderRadius: 24,
+    padding: 28,
+    borderWidth: 1.5,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontFamily: serifFont,
+    marginBottom: 12,
+    letterSpacing: 1,
+    textAlign: 'center',
+  },
+  modalMessage: {
+    fontSize: 14,
+    fontFamily: sansFont,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 32,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  modalButton: {
+    flex: 1,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    fontSize: 14,
+    fontFamily: sansFont,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
 });

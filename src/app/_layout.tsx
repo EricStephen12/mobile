@@ -46,9 +46,8 @@ export default function RootLayout() {
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="index" />
               <Stack.Screen name="login" />
-              <Stack.Screen name="signup" />
+              <Stack.Screen name="questionnaire" />
               <Stack.Screen name="forgot" />
-              <Stack.Screen name="lens" />
               <Stack.Screen name="home" />
               <Stack.Screen name="history" />
               <Stack.Screen name="settings" />

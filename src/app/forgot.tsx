@@ -4,6 +4,7 @@ import { StyleSheet, View, Text, TextInput, TouchableOpacity, KeyboardAvoidingVi
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../theme/ThemeContext';
+import { AmbientGlow } from '../components/AmbientGlow';
 
 const BRAND_GREEN = '#bdf522';
 
@@ -37,6 +38,7 @@ export default function ForgotScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <AmbientGlow />
       <StatusBar style={isDark ? "light" : "dark"} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.content}>
         
@@ -114,7 +116,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 40,
     fontFamily: serifFont,
-    fontWeight: '800',
     color: '#ffffff',
     lineHeight: 44,
     marginBottom: 16,
