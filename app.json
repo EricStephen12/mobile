@@ -52,7 +52,10 @@
             "newArchEnabled": false
           }
         }
-      ]
+      ],
+      "@sentry/react-native/expo",
+      "@sentry/react-native",
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,

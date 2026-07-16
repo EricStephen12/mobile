@@ -7,6 +7,8 @@ import { ThemeProvider } from '../theme/ThemeContext';
 import { RevenueCatProvider } from '../theme/RevenueCatProvider';
 import { ClerkProvider } from '@clerk/clerk-expo';
 import { tokenCache } from '../theme/tokenCache';
+import * as Sentry from '@sentry/react-native';
+import PostHog from 'posthog-react-native';
 
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -16,10 +18,15 @@ if (!clerkPublishableKey) {
   throw new Error('Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in .env');
 }
 
+Sentry.init({
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+  tracesSampleRate: 1.0,
+});
+
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+function RootLayout() {
   const [loaded, error] = useFonts({
     'Singsong': require('@/assets/fonts/Singsong.otf'),
   });
@@ -43,23 +50,32 @@ export default function RootLayout() {
       <ClerkProvider publishableKey={clerkPublishableKey} tokenCache={tokenCache}>
         <ThemeProvider>
           <RevenueCatProvider>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="index" />
-              <Stack.Screen name="login" />
-              <Stack.Screen name="questionnaire" />
-              <Stack.Screen name="forgot" />
-              <Stack.Screen name="home" />
-              <Stack.Screen name="history" />
-              <Stack.Screen name="settings" />
-              <Stack.Screen name="account" />
-              <Stack.Screen name="about" />
-              <Stack.Screen name="pricing" />
-              <Stack.Screen name="analyzing" />
-              <Stack.Screen name="chat" />
-            </Stack>
+            <PostHog
+              apiKey={process.env.EXPO_PUBLIC_POSTHOG_KEY || 'phc_placeholder_key'}
+              options={{
+                host: process.env.EXPO_PUBLIC_POSTHOG_HOST || 'https://app.posthog.com',
+              }}
+            >
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="index" />
+                <Stack.Screen name="login" />
+                <Stack.Screen name="questionnaire" />
+                <Stack.Screen name="forgot" />
+                <Stack.Screen name="home" />
+                <Stack.Screen name="history" />
+                <Stack.Screen name="settings" />
+                <Stack.Screen name="account" />
+                <Stack.Screen name="about" />
+                <Stack.Screen name="pricing" />
+                <Stack.Screen name="analyzing" />
+                <Stack.Screen name="chat" />
+              </Stack>
+            </PostHog>
           </RevenueCatProvider>
         </ThemeProvider>
       </ClerkProvider>
     </SafeAreaProvider>
   );
 }
+
+export default Sentry.wrap(RootLayout);
