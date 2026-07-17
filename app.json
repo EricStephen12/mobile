@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Eixora",
-    "slug": "eixora",
+    "slug": "mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/new_premium_icon.png",
@@ -66,6 +66,12 @@
       "eas": {
         "projectId": "6adc592f-f358-4fa4-b66e-c38a8e196927"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/6adc592f-f358-4fa4-b66e-c38a8e196927"
     }
   }
 }

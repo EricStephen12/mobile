@@ -114,7 +114,7 @@ export default function PricingScreen() {
       price: '$10',
       period: '/mo',
       badge: 'Best Value',
-      features: ['250 Studio Scans / mo', 'Up to 30 minute videos', '250 Strategy Briefs / mo', 'Priority AI Speed', 'Advanced PDF Exports']
+      features: ['250 Studio Scans / mo', 'Up to 30 minute videos', '250 Strategy Briefs / mo', 'Priority AI Speed']
     }
   ];
 
