@@ -38,6 +38,13 @@ const GOALS = [
   { id: 'roi', label: 'Maximize ROI', icon: '💰' },
 ];
 
+const SOURCES = [
+  { id: 'youtube', label: 'YouTube', icon: '▶️' },
+  { id: 'tiktok', label: 'TikTok / Instagram', icon: '📱' },
+  { id: 'twitter', label: 'Twitter / X', icon: '🐦' },
+  { id: 'friend', label: 'Word of Mouth', icon: '🤝' },
+];
+
 
 const TypewriterText = ({ text, style, delay = 0 }: { text: string, style: any, delay?: number }) => {
   const [displayedText, setDisplayedText] = useState('');
@@ -78,6 +85,7 @@ export default function QuestionnaireScreen() {
   const [role, setRole] = useState<string | null>(null);
   const [goal, setGoal] = useState<string | null>(null);
   const [fullName, setFullName] = useState('');
+  const [source, setSource] = useState<string | null>(null);
   const [lens, setLens] = useState<'ad' | 'content'>('ad');
   
   const [isFinishing, setIsFinishing] = useState(false);
@@ -94,7 +102,7 @@ export default function QuestionnaireScreen() {
 
   const handleFinish = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    transitionToStep(5); // the loading step
+    transitionToStep(6); // the loading step
     setIsFinishing(true);
 
     try {
@@ -110,6 +118,7 @@ export default function QuestionnaireScreen() {
           unsafeMetadata: {
             role,
             goal,
+            source,
             lens,
             onboardingComplete: true
           }
@@ -229,6 +238,38 @@ export default function QuestionnaireScreen() {
 
   const renderStep4 = () => (
     <View style={styles.stepContainer}>
+      <TypewriterText text={"Where did you\nHear About Us?"} style={[styles.stepTitle, { color: colors.text }]} />
+      <TypewriterText text="Just curious! It helps us know where our best users are coming from." style={[styles.stepSubtitle, { color: colors.textSubtle }]} delay={500} />
+      
+      <View style={styles.optionsList}>
+        {SOURCES.map((s) => {
+          const isSelected = source === s.id;
+          return (
+            <TouchableOpacity
+              key={s.id}
+              style={[
+                styles.optionCard, 
+                { backgroundColor: colors.surface, borderColor: isSelected ? BRAND_GREEN : colors.surfaceBorder },
+                isSelected && styles.optionCardSelected
+              ]}
+              activeOpacity={0.7}
+              onPress={() => {
+                Haptics.selectionAsync();
+                setSource(s.id);
+                setTimeout(() => transitionToStep(5), 400); // Auto-advance
+              }}
+            >
+              <Text style={styles.optionIcon}>{s.icon}</Text>
+              <Text style={[styles.optionLabel, { color: isSelected ? BRAND_GREEN : colors.text }]}>{s.label}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  );
+
+  const renderStep5 = () => (
+    <View style={styles.stepContainer}>
       <TypewriterText text={"Choose your\nIntelligence Lens"} style={[styles.stepTitle, { color: colors.text }]} />
       <TypewriterText text="Select your primary workspace." style={[styles.stepSubtitle, { color: colors.textSubtle }]} delay={500} />
       
@@ -262,7 +303,7 @@ export default function QuestionnaireScreen() {
     </View>
   );
 
-  const renderStep5 = () => (
+  const renderStep6 = () => (
     <View style={[styles.stepContainer, { justifyContent: 'center', alignItems: 'center', paddingBottom: 100 }]}>
       <ActivityIndicator size="large" color={BRAND_GREEN} style={{ marginBottom: 30 }} />
       <Text style={[styles.loadingTitle, { color: colors.text }]}>Tailoring your dashboard...</Text>
@@ -275,14 +316,14 @@ export default function QuestionnaireScreen() {
       <AmbientGlow />
       <StatusBar style={isDark ? "light" : "dark"} />
       
-      {step < 5 && (
+      {step < 6 && (
         <View style={styles.header}>
           {step > 1 ? (
             <TouchableOpacity onPress={() => transitionToStep(step - 1)} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}>
               <Text style={[styles.backText, { color: colors.textSubtle }]}>← BACK</Text>
             </TouchableOpacity>
           ) : <View />}
-          <Text style={[styles.stepIndicator, { color: colors.primary }]}>{step} / 4</Text>
+          <Text style={[styles.stepIndicator, { color: colors.primary }]}>{step} / 5</Text>
         </View>
       )}
 
@@ -297,6 +338,7 @@ export default function QuestionnaireScreen() {
             {step === 3 && renderStep3()}
             {step === 4 && renderStep4()}
             {step === 5 && renderStep5()}
+            {step === 6 && renderStep6()}
           </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
