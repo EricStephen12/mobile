@@ -83,6 +83,83 @@ const INITIAL_MESSAGES = [
     id: '5',
     sender: 'user',
     text: "How can I improve it?",
+import { AmbientGlow } from '../components/AmbientGlow';
+
+const { width } = Dimensions.get('window');
+
+
+const sansFont = Platform.select({
+  ios: 'System',
+  android: 'sans-serif',
+  default: 'sans-serif',
+});
+
+// --- Icons ---
+const BackArrow = ({ color }: { color: string }) => (
+  <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M19 12H5M12 19l-7-7 7-7" />
+  </Svg>
+);
+
+
+const BoltIcon = ({ color }: { color: string }) => (
+  <Svg width={10} height={10} viewBox="0 0 24 24" fill={color} stroke="none">
+    <Polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+  </Svg>
+);
+
+const SendIcon = () => (
+  <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+  </Svg>
+);
+
+// Minimal Flower Icon for AI messages
+const MinimalFlower = ({ color }: { color: string }) => (
+  <Svg width={22} height={22} viewBox="-20 -20 40 40">
+    <G>
+      {[0, 60, 120, 180, 240, 300].map((angle, i) => (
+        <Path
+          key={i}
+          transform={`rotate(${angle})`}
+          d="M 0,0 C -5,-8 -4,-18 0,-20 C 4,-18 5,-8 0,0"
+          fill="none"
+          stroke={color}
+          strokeWidth="1.5"
+          strokeOpacity="0.9"
+        />
+      ))}
+      <Circle cx="0" cy="0" r="2" fill={color} />
+    </G>
+  </Svg>
+);
+
+// Mock chat messages
+const INITIAL_MESSAGES = [
+  {
+    id: '1',
+    sender: 'user',
+    text: 'Why does this ad perform well?',
+  },
+  {
+    id: '2',
+    sender: 'ai',
+    text: "The ad hooks early, builds curiosity, and delivers a clear transformation. It's short, visual, and emotionally engaging.",
+  },
+  {
+    id: '3',
+    sender: 'user',
+    text: "What's the weakest part?",
+  },
+  {
+    id: '4',
+    sender: 'ai',
+    text: "The CTA could be stronger. It appears a bit late and gets less focus.",
+  },
+  {
+    id: '5',
+    sender: 'user',
+    text: "How can I improve it?",
   },
   {
     id: '6',
@@ -90,6 +167,56 @@ const INITIAL_MESSAGES = [
     text: "Show the product benefit again during the CTA and make it more direct.",
   },
 ];
+
+const AnalysisSummary = ({ dna, mode, colors }: { dna: any, mode: string, colors: any }) => {
+  if (!dna || Object.keys(dna).length === 0) return null;
+
+  if (mode === 'product-intel') {
+    return (
+      <View style={{ backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 20, borderWidth: 1, borderColor: colors.surfaceBorder }}>
+        <Text style={{ color: colors.text, fontSize: 18, fontWeight: 'bold', marginBottom: 12 }}>{dna.productName || 'Product Analysis'}</Text>
+        <Text style={{ color: colors.primary, fontSize: 10, fontWeight: 'bold', letterSpacing: 2, marginBottom: 4, textTransform: 'uppercase' }}>Verdict</Text>
+        <Text style={{ color: colors.text, fontSize: 14, marginBottom: 16, lineHeight: 20 }}>{dna.verdict || 'Analysis pending.'}</Text>
+        
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <View>
+            <Text style={{ color: colors.textSubtle, fontSize: 10, fontWeight: 'bold', letterSpacing: 1, textTransform: 'uppercase' }}>Saturation</Text>
+            <Text style={{ color: colors.text, fontSize: 16, fontWeight: 'bold', marginTop: 4 }}>{dna.saturationScore || '-'}/10</Text>
+          </View>
+          <View>
+            <Text style={{ color: colors.textSubtle, fontSize: 10, fontWeight: 'bold', letterSpacing: 1, textTransform: 'uppercase' }}>Profitability</Text>
+            <Text style={{ color: colors.text, fontSize: 16, fontWeight: 'bold', marginTop: 4 }}>{dna.profitViabilityScore || '-'}/10</Text>
+          </View>
+          <View>
+            <Text style={{ color: colors.textSubtle, fontSize: 10, fontWeight: 'bold', letterSpacing: 1, textTransform: 'uppercase' }}>Pain Fit</Text>
+            <Text style={{ color: colors.text, fontSize: 16, fontWeight: 'bold', marginTop: 4 }}>{dna.audiencePainFitScore || '-'}/10</Text>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  // Ad / Content Intel
+  return (
+    <View style={{ backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 20, borderWidth: 1, borderColor: colors.surfaceBorder }}>
+      <Text style={{ color: colors.text, fontSize: 16, fontWeight: 'bold', marginBottom: 16 }}>Performance Metrics</Text>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <View>
+          <Text style={{ color: colors.textSubtle, fontSize: 10, fontWeight: 'bold', letterSpacing: 1, textTransform: 'uppercase' }}>Hook Power</Text>
+          <Text style={{ color: colors.text, fontSize: 16, fontWeight: 'bold', marginTop: 4 }}>{dna.metrics?.hook_power || '-'}/100</Text>
+        </View>
+        <View>
+          <Text style={{ color: colors.textSubtle, fontSize: 10, fontWeight: 'bold', letterSpacing: 1, textTransform: 'uppercase' }}>Retention</Text>
+          <Text style={{ color: colors.text, fontSize: 16, fontWeight: 'bold', marginTop: 4 }}>{dna.metrics?.retention_score || '-'}/100</Text>
+        </View>
+        <View>
+          <Text style={{ color: colors.textSubtle, fontSize: 10, fontWeight: 'bold', letterSpacing: 1, textTransform: 'uppercase' }}>Conversion</Text>
+          <Text style={{ color: colors.text, fontSize: 16, fontWeight: 'bold', marginTop: 4 }}>{dna.metrics?.conversion_trigger || '-'}/100</Text>
+        </View>
+      </View>
+    </View>
+  );
+};
 
 export default function ChatScreen() {
   const router = useRouter();
@@ -120,13 +247,28 @@ export default function ChatScreen() {
         const token = await getToken();
         if (!token) return;
         const res = await fetch(`${API_URL}/api/lounge-session/${sessionId}`, {
+  useEffect(() => {
+    if (!sessionId) {
+      setLoading(false);
+      return;
+    }
+    const fetchSession = async () => {
+      try {
+        const token = await getToken();
+        if (!token) return;
+        const res = await fetch(`${API_URL}/api/lounge-session/${sessionId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
           const data = await res.json();
           setDna(data.dna || {});
           setSessionTitle(data.title || 'Analysis Session');
-          setSessionMode(data.dna?.mode || data.mode || 'ad');
+          let detectedMode = data.dna?.mode || data.mode;
+          if (!detectedMode) {
+            if (data.dna?.productName || data.dna?.saturationScore) detectedMode = 'product-intel';
+            else detectedMode = 'ad';
+          }
+          setSessionMode(detectedMode);
           // Use first frame thumbnail if available
           if (data.dna?.frames?.[0]) {
             setSessionThumb(data.dna.frames[0]);
@@ -269,22 +411,6 @@ export default function ChatScreen() {
         style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView
-          ref={scrollViewRef}
-          onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
-          style={styles.chatScroll}
-          contentContainerStyle={styles.chatContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {loading ? (
-            <ActivityIndicator color={colors.primary} size="large" style={{ marginTop: 40 }} />
-          ) : (
-            messages.map((msg) => {
-              const isUser = msg.sender === 'user';
-              return (
-                <View key={msg.id} style={[styles.messageRow, isUser ? styles.messageRowUser : styles.messageRowAi]}>
-                  {!isUser && (
-                    <View style={styles.aiIconWrapper}>
                       <MinimalFlower color={colors.primary} />
                     </View>
                   )}
