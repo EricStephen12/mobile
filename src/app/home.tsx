@@ -65,10 +65,8 @@ export default function HomeScreen() {
   const { isPro } = useRevenueCat();
   const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:4000';
   
-  const initialMode = params.lens === 'content' ? 'content' : 'ad';
-
-  const [link, setLink] = useState('');
-  const [mode, setMode] = useState<'ad' | 'content'>(initialMode);
+  const initialMode = params.lens === 'content' ? 'content' : params.lens === 'product-intel' ? 'product-intel' : 'ad';
+  const [mode, setMode] = useState<'ad' | 'content' | 'product-intel'>(initialMode as any);
   const [recent, setRecent] = useState<any[]>([]);
   const [loadingRecent, setLoadingRecent] = useState(true);
   const [scanCount, setScanCount] = useState(0);
@@ -101,12 +99,16 @@ export default function HomeScreen() {
 
   const BRAND_GREEN = colors.primary;
   const activeColor = BRAND_GREEN;
-  const placeholderText = mode === 'ad' ? "Paste ad link..." : "Paste content link...";
-  const modeText = mode === 'ad' ? "Ad Intelligence" : "Content Intelligence";
+  const placeholderText = mode === 'ad' ? "Paste ad link..." : mode === 'content' ? "Paste content link..." : "Paste product video link...";
+  const modeText = mode === 'ad' ? "Ad Intelligence" : mode === 'content' ? "Content Intelligence" : "Product Intelligence";
 
   const handleToggleMode = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setMode(prev => prev === 'ad' ? 'content' : 'ad');
+    setMode(prev => {
+      if (prev === 'ad') return 'content';
+      if (prev === 'content') return 'product-intel';
+      return 'ad';
+    });
   };
 
   const handleAnalyze = () => {
@@ -148,7 +150,7 @@ export default function HomeScreen() {
 
           <View style={styles.pillRow}>
             <TouchableOpacity style={[styles.modePill, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]} activeOpacity={0.85} onPress={handleToggleMode}>
-              {mode === 'ad' ? <BoltIcon color={activeColor} /> : <View style={[styles.contentDot, { backgroundColor: activeColor }]} />}
+              {mode === 'ad' ? <BoltIcon color={activeColor} /> : mode === 'product-intel' ? <View style={[styles.contentDot, { backgroundColor: '#6366f1', borderRadius: 4, width: 8, height: 8 }]} /> : <View style={[styles.contentDot, { backgroundColor: activeColor }]} />}
               <Text style={[styles.pillText, { color: colors.text }]}>{modeText}</Text>
               <FilterIcon />
             </TouchableOpacity>

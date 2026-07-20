@@ -104,7 +104,7 @@ export default function ChatScreen() {
   const [inputText, setInputText] = useState('');
   const [dna, setDna] = useState<any>(null);
   const [sessionTitle, setSessionTitle] = useState('Analysis Session');
-  const [sessionMode, setSessionMode] = useState<'ad' | 'content'>('ad');
+  const [sessionMode, setSessionMode] = useState<'ad' | 'content' | 'product-intel'>('ad');
   const [sessionThumb, setSessionThumb] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -258,7 +258,7 @@ export default function ChatScreen() {
               <Text style={[styles.campaignTitle, { color: colors.text }]}>{sessionTitle}</Text>
               <View style={[styles.modePill, { backgroundColor: colors.badgeBg, borderColor: colors.surfaceBorder }]}>
                 <BoltIcon color={colors.primary} />
-                <Text style={[styles.pillText, { color: colors.text }]}>{sessionMode === 'content' ? 'Content Intelligence' : 'Ad Intelligence'}</Text>
+                <Text style={[styles.pillText, { color: colors.text }]}>{sessionMode === 'content' ? 'Content Intelligence' : sessionMode === 'product-intel' ? 'Product Intelligence' : 'Ad Intelligence'}</Text>
               </View>
             </View>
                   </View>

@@ -84,8 +84,9 @@ export default function HistoryScreen() {
             {history.map((item) => {
               const mode = item.dna?.mode || item.mode || 'ad';
               const isContent = mode === 'content';
-              const badgeBg = isContent ? colors.surfaceBorder : colors.badgeBg;
-              const badgeText = isContent ? colors.text : colors.primary;
+              const isProduct = mode === 'product-intel';
+              const badgeBg = isProduct ? '#e0e7ff' : isContent ? colors.surfaceBorder : colors.badgeBg;
+              const badgeText = isProduct ? '#4338ca' : isContent ? colors.text : colors.primary;
               const title = item.title || 'Analysis Session';
               
               // Get thumbnail
@@ -129,7 +130,7 @@ export default function HistoryScreen() {
                       <Text style={[styles.scoreValue, { color: colors.text }]}>{hookPower}</Text>
                     </View>
                     <View style={[styles.typeBadge, { backgroundColor: badgeBg }]}>
-                      <Text style={[styles.badgeText, { color: badgeText }]}>{isContent ? 'Content' : 'Ad'}</Text>
+                      <Text style={[styles.badgeText, { color: badgeText }]}>{isProduct ? 'Product' : isContent ? 'Content' : 'Ad'}</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
